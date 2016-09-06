@@ -12,4 +12,23 @@ router.get('/test', function* (next) {
 });
 
 
+router.post('/testPost', function *(next) {
+    this.body = "test post request";
+});
+
+
+router.get('/error1', function* () {
+    this.body = {errorCode:'sys.001',errorMessage:'system error'};
+});
+
+
+router.get('/error2', function* () {
+    this.body = {errorCode:'sys.002',errorMessage:'system error'};
+});
+
+router.get('/error3', function *(next) {
+    this.body = {errorCode:'sys.0011',errorMessage:'error3 sys.0011'};
+});
+
+
 module.exports = router;

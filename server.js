@@ -3,10 +3,9 @@
  */
 
 var app = require('./src/app');
+var config = require('./src/config');
 
 var http = require('http');
-
-var config = {};
 
 var port = config.port ? config.port : 3000;
 
