@@ -12,7 +12,11 @@
   "devDependencies": {
     "copy": "^0.3.0",
     "del": "^2.2.2",
+    "dependency-install": "0.0.11",
     "gulp": "^3.9.1",
-    "gulp-less": "^3.2.0"
+    "gulp-less": "^3.2.0",
+    "gulp-run-sequence": "^0.3.2",
+    "gulp-zip": "^3.2.0",
+    "less": "^2.7.1"
   }
 }
