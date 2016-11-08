@@ -6,14 +6,26 @@ var koaStatic = require('koa-static');
 var fs = require('fs');
 //plugins
 var bodyParser = require('koa-bodyparser');
-var log4js = require('log4js'),logger = log4js.getLogger();
+var logger = require('./common/logger')();
+var Pug = require('koa-pug');
 
+var routerScan = require('./common/routerScan');
 var config = require('./config');
 var errorCode = require('./errorCode');
 
 //add plugins
 app.use(bodyParser());
 app.use(koaStatic(path.join(__dirname,'public')));
+
+//session plugin
+
+
+// pug(jade)模板插件的引入
+var pug = new Pug({
+    viewPath: path.join(__dirname,'views'),
+    debug:false
+});
+app.use(pug.middleware);
 
 //add Interceptor 拦截器
 //Interceptor 1 异常拦截
@@ -28,7 +40,7 @@ app.use(function*(next){
     }
     logger.info(this.body);
     //errorMessage replace
-    if(this.body.errorCode){
+    if(this.body && this.body.errorCode){
         var code = this.body.errorCode;
         var errorMessage = errorCode[code];
         if(errorMessage){
@@ -59,11 +71,12 @@ app.use(function* (next) {
 
 
 //add routers
-app.use(require('./router/router1').routes());
-
+//app.use(routerScan());
+routerScan(app);
 
 //end function 404
 app.use(function *(next) {
+    logger.info(this.url);
     logger.error('the path not found : 404');
     this.redirect('/system/404.html');
 });

@@ -4,8 +4,15 @@
   "dependencies": {
     "koa": "^1.2.2",
     "koa-bodyparser": "^2.2.0",
+    "koa-pug": "^3.0.0-1",
     "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
     "log4js": "^0.6.38"
+  },
+  "devDependencies": {
+    "copy": "^0.3.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-less": "^3.2.0"
   }
 }
