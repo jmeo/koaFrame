@@ -1,8 +1,8 @@
 /**
  * Created by jmeo on 16/9/6.
  */
-var path = require('path'),app = require('koa')();
-var koaStatic = require('koa-static');
+var path = require('path'),koa = require('koa'),app = new koa();
+var koaStatic = require('koa-static2');
 var fs = require('fs');
 //plugins
 var bodyParser = require('koa-bodyparser');
@@ -23,34 +23,36 @@ app.use(koaStatic(path.join(__dirname,'public')));
 // pug(jade)模板插件的引入
 var pug = new Pug({
     viewPath: path.join(__dirname,'views'),
-    debug:false
+    debug:false,
+    noCache:true
 });
-app.use(pug.middleware);
+pug.use(app);
+
 
 //add Interceptor 拦截器
 //Interceptor 1 异常拦截
-app.use(function*(next){
-    logger.info(this);
+app.use((ctx,next)=>{
+    logger.info(ctx);
     try{
-        yield next;
+        next();
     }catch(e){
         logger.error(e.message);
         //跳转页面或返回异常处理信息
         this.body = e.message;
     }
-    logger.info(this.body);
+    logger.info(ctx.body);
     //errorMessage replace
-    if(this.body && this.body.errorCode){
-        var code = this.body.errorCode;
+    if(ctx.body && ctx.body.errorCode){
+        var code = ctx.body.errorCode;
         var errorMessage = errorCode[code];
         if(errorMessage){
             if(typeof errorMessage == 'string'){
-                this.body.errorMessage = errorMessage;
+                ctx.body.errorMessage = errorMessage;
             }else if(typeof errorMessage == 'object'){
                 if(errorMessage.zn){
-                    this.body.errorMessage = errorMessage.zn;
+                    ctx.body.errorMessage = errorMessage.zn;
                 }else if(errorMessage.en){
-                    this.body.errorMessage = errorMessage.en;
+                    ctx.body.errorMessage = errorMessage.en;
                 }
             }
         }
@@ -58,14 +60,14 @@ app.use(function*(next){
 });
 
 //Interceptor 2 登录相关拦截
-app.use(function* (next) {
+app.use((ctx,next)=>{
     //if un login , return to the loginUrl
     var login = false;
-    var tpath = !/system\/login/.test(this.path);
+    var tpath = !/system\/login/.test(ctx.path);
     if(login && tpath){
-        this.redirect("/system/login.html");
+        ctx.redirect("/system/login.html");
     }else{
-        yield next;
+        next();
     }
 });
 
@@ -75,10 +77,10 @@ app.use(function* (next) {
 routerScan(app);
 
 //end function 404
-app.use(function *(next) {
-    logger.info(this.url);
+app.use(function (ctx,next) {
+    logger.info(ctx.url);
     logger.error('the path not found : 404');
-    this.redirect('/system/404.html');
+    ctx.redirect('/system/404.html');
 });
 
 module.exports = app;
