@@ -2,8 +2,10 @@
  * Created by jmeo on 16/9/6.
  */
 var path = require('path'),koa = require('koa'),app = new koa();
+var router = require('koa-router')();
 var koaStatic = require('koa-static2');
 var fs = require('fs');
+var favicon = require('koa-favicon');
 //plugins
 var bodyParser = require('koa-bodyparser');
 var logger = require('./common/logger')();
@@ -14,7 +16,13 @@ var config = require('./config');
 var errorCode = require('./errorCode');
 
 //add plugins
-app.use(bodyParser());
+app.use(bodyParser({
+    onerror: function (err, ctx) {
+        ctx.throw('body parse error', 422);
+    }
+
+}));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(koaStatic(path.join(__dirname,'public')));
 
 //session plugin
@@ -29,12 +37,13 @@ var pug = new Pug({
 pug.use(app);
 
 
+
 //add Interceptor 拦截器
 //Interceptor 1 异常拦截
 app.use((ctx,next)=>{
     logger.info(ctx);
     try{
-        next();
+        next(ctx);
     }catch(e){
         logger.error(e.message);
         //跳转页面或返回异常处理信息
@@ -67,10 +76,21 @@ app.use((ctx,next)=>{
     if(login && tpath){
         ctx.redirect("/system/login.html");
     }else{
-        next();
+        next(ctx);
     }
 });
 
+
+var multer = require('koa-multer');
+var storage=multer.memoryStorage();
+var upload = multer({storage:storage});
+router.post('/uploadFile',upload.any(),function (ctx,next) {
+    console.log(ctx);
+    var files = ctx.files;
+    ctx.body = "success";
+});
+
+app.use(router.routes());
 
 //add routers
 //app.use(routerScan());

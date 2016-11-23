@@ -4,6 +4,7 @@ html
     head
         title upload
     body
-        form(action='upload' method='post')
-            input(type='file' filename='fname' id='fname')
+        form(action='uploadFile' method='post' enctype="multipart/form-data")
+            input(type='file' id='fname' name="uploadFileName")
+            input(type="text" name="body")
             input(type='submit')

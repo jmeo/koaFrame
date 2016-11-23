@@ -6,6 +6,10 @@ var parse = require('co-busboy');
 var fs = require('fs');
 var os = require('os');
 var path = require('path');
+var multer = require('koa-multer');
+var storage=multer.memoryStorage();
+var upload = multer({storage:storage});
+
 
 router.get('/',function(ctx,next){
     ctx.body = {body :'this is the root path'};
@@ -39,12 +43,17 @@ router.get('/pugtest', function (ctx,next) {
     return;
 });
 
-router.get('uploadpage', function (ctx,next) {
+router.get('/uploadpage', function (ctx,next) {
    ctx.render('test/upload');
 });
+//
+// router.post('/uploadFile',upload.any(),function (ctx,next) {
+//     console.log(ctx);
+//     var files = ctx.files;
+//     console.log(files.length);
+//     ctx.body = "success";
+// });
 
-router.post('/upload', function (ctx,next) {
-});
 
 
 module.exports = router;
