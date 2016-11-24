@@ -36,36 +36,43 @@ var pug = new Pug({
 });
 pug.use(app);
 
-
-
 //add Interceptor 拦截器
 //Interceptor 1 异常拦截
 app.use((ctx,next)=>{
-    logger.info(ctx);
-    try{
-        next(ctx);
-    }catch(e){
-        logger.error(e.message);
-        //跳转页面或返回异常处理信息
-        this.body = e.message;
-    }
-    logger.info(ctx.body);
-    //errorMessage replace
-    if(ctx.body && ctx.body.errorCode){
-        var code = ctx.body.errorCode;
-        var errorMessage = errorCode[code];
-        if(errorMessage){
-            if(typeof errorMessage == 'string'){
-                ctx.body.errorMessage = errorMessage;
-            }else if(typeof errorMessage == 'object'){
-                if(errorMessage.zn){
-                    ctx.body.errorMessage = errorMessage.zn;
-                }else if(errorMessage.en){
-                    ctx.body.errorMessage = errorMessage.en;
+    logger.info(ctx.url);
+    return next()
+        .catch((e)=>{
+            var errorMsg = e.message;
+            logger.error(errorMsg);
+            try{
+                ctx.body = eval("("+errorMsg+")");
+            }catch (e){
+                throw errorMsg;
+            }
+        })
+        .catch((e)=>{
+            ctx.body = {errorCode:'nsystem.001',errorMessage:"errorCode analysis error",oldMessage:e.message};
+        })
+        .then(()=>{
+            logger.info(ctx.body);
+            //errorMessage replace
+            if(ctx.body && ctx.body.errorCode){
+                var code = ctx.body.errorCode;
+                var errorMessage = errorCode[code];
+                if(errorMessage){
+                    if(typeof errorMessage == 'string'){
+                        ctx.body.errorMessage = errorMessage;
+                    }else if(typeof errorMessage == 'object'){
+                        if(errorMessage.zn){
+                            ctx.body.errorMessage = errorMessage.zn;
+                        }else if(errorMessage.en){
+                            ctx.body.errorMessage = errorMessage.en;
+                        }
+                    }
                 }
             }
-        }
-    }
+    });
+
 });
 
 //Interceptor 2 登录相关拦截
@@ -76,21 +83,10 @@ app.use((ctx,next)=>{
     if(login && tpath){
         ctx.redirect("/system/login.html");
     }else{
-        next(ctx);
+       return next();
     }
 });
 
-
-var multer = require('koa-multer');
-var storage=multer.memoryStorage();
-var upload = multer({storage:storage});
-router.post('/uploadFile',upload.any(),function (ctx,next) {
-    console.log(ctx);
-    var files = ctx.files;
-    ctx.body = "success";
-});
-
-app.use(router.routes());
 
 //add routers
 //app.use(routerScan());

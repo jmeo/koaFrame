@@ -6,6 +6,7 @@ var parse = require('co-busboy');
 var fs = require('fs');
 var os = require('os');
 var path = require('path');
+var fs = require('fs');
 var multer = require('koa-multer');
 var storage=multer.memoryStorage();
 var upload = multer({storage:storage});
@@ -19,6 +20,9 @@ router.get('/test', function (ctx,next) {
     ctx.body = {'message':'hello first message'};
 });
 
+router.get('/throwError', function (ctx,next) {
+    throw new Error("errorCode:'sys.001',errorMessage:'system error'");
+});
 
 router.post('/testPost', function (ctx,next) {
     ctx.body = "test post request";
@@ -46,13 +50,30 @@ router.get('/pugtest', function (ctx,next) {
 router.get('/uploadpage', function (ctx,next) {
    ctx.render('test/upload');
 });
-//
-// router.post('/uploadFile',upload.any(),function (ctx,next) {
-//     console.log(ctx);
-//     var files = ctx.files;
-//     console.log(files.length);
-//     ctx.body = "success";
-// });
+
+//表单提交接口
+router.post('/uploadFile',upload.any(),function (ctx,next) {
+    console.log(ctx);
+    var req = ctx.req;
+    console.log(req.form);
+    ctx.body = "success";
+});
+
+
+//文件上传接口
+router.post('/fileUpload',upload.any(),function (ctx,next) {
+    var req = ctx.req;
+    var files = req.files;
+    if( !files || files.length <= 0){
+        throw new Error("没有接受到任务文件");
+    }
+    for(var k in files){
+        var file = files[k];
+        var pathStr = path.join(__dirname,'../..','uploads',file.originalname);
+        fs.writeFileSync(pathStr,file.buffer);
+    }
+    ctx.body = "file upload success"
+});
 
 
 
