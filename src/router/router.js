@@ -10,6 +10,7 @@ var fs = require('fs');
 var multer = require('koa-multer');
 var storage=multer.memoryStorage();
 var upload = multer({storage:storage});
+var uploader = require('file-uploader');
 
 
 router.get('/',function(ctx,next){
@@ -53,10 +54,33 @@ router.get('/uploadpage', function (ctx,next) {
 
 //表单提交接口
 router.post('/uploadFile',upload.any(),function (ctx,next) {
-    console.log(ctx);
     var req = ctx.req;
-    console.log(req.form);
-    ctx.body = "success";
+    var files = req.files;
+    if( !files || files.length <= 0){
+        throw new Error("没有接受到任务文件");
+    }
+    for(var k in files){
+        var file = files[k];
+        var pathStr = path.join(__dirname,'../..','uploads',file.originalname);
+        fs.writeFileSync(pathStr,file.buffer);
+    }
+
+    var options = {
+        host : 'localhost',
+        port : 3000,
+        path : '/fileUpload',
+        method : 'POST',
+        encoding : 'utf8'
+    }
+
+    new Promise(function (resolve,reject) {
+        uploader.postFile(options, pathStr, {}, function(err, res) {
+            resolve(res);
+        })
+    }).then(function (val) {
+        console.log(val)
+        ctx.body = val
+    })
 });
 
 
@@ -69,7 +93,7 @@ router.post('/fileUpload',upload.any(),function (ctx,next) {
     }
     for(var k in files){
         var file = files[k];
-        var pathStr = path.join(__dirname,'../..','uploads',file.originalname);
+        var pathStr = path.join(__dirname,'../..','uc',file.originalname);
         fs.writeFileSync(pathStr,file.buffer);
     }
     ctx.body = "file upload success"

@@ -17,8 +17,10 @@
     "del": "^2.2.2",
     "dependency-install": "0.0.11",
     "gulp": "^3.9.1",
+    "gulp-install": "^0.6.0",
     "gulp-less": "^3.2.0",
     "gulp-run-sequence": "^0.3.2",
+    "gulp-watch": "^4.3.11",
     "gulp-zip": "^3.2.0",
     "less": "^2.7.1"
   }

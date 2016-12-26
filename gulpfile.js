@@ -9,6 +9,7 @@ var path = require('path');
 var fs = require('fs');
 var runSequence = require('gulp-run-sequence');
 var zip = require('gulp-zip');
+var watch = require('gulp-watch');
 
 var install = require('gulp-install');
 
@@ -56,6 +57,13 @@ gulp.task('zip',function(cb){
     return gulp.src('./build/**/*')
         .pipe(zip('programName.zip'))
         .pipe(gulp.dest('./build'));
+});
+
+//less 监听任务
+gulp.task('watch',function (cb) {
+    return watch("./src/public/less/*.less",function () {
+        runSequence('less');
+    })
 });
 
 
