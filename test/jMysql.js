@@ -91,7 +91,7 @@ jMysql.prototype.destroy = function () {
     if(this.pool){
         this.pool.end();
     }
-}
+};
 
 
 module.exports = jMysql;

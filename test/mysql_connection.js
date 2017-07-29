@@ -16,16 +16,21 @@ var mysql = require('./jMysql');
 
 var jMysql = new mysql(connect_opt);
 
-jMysql.getPoolConnection(function (connection) {
-    connection.query(sql_1,function (err,results,fields) {
-        console.log(fields);
-        connection.release();
+// jMysql.getPoolConnection(function (connection) {
+//     connection.query(sql_1,function (err,results,fields) {
+//         console.log(fields);
+//         connection.release();
+//
+//         jMysql.destroy();
+//     });
+// });
 
-        jMysql.destroy();
-    });
+
+jMysql.poolQuery(sql_1,function (err,result,fields) {
+   // console.info(result);
+    for(var i =0;i<result.length;i++){
+        console.log(result[i]['ID']);
+    }
+
+    jMysql.destroy();
 });
-
-
-jMysql.poolQuery(sql_1,function (h) {
-    
-})
